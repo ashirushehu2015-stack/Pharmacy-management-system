@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Stock Entry - MIT 820 Group 4 Pharmacy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-transparent border-0 pt-4 px-4">
+                <h4 class="fw-bold mb-0">
+                    <i class="fa-solid fa-cart-plus me-2 text-success"></i>
+                    Record New Stock Entry
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-info border-0 shadow-sm rounded-3 mb-4 fs-7">
+                    <i class="fa-solid fa-circle-info me-2"></i>
+                    Recording a stock entry will automatically increment the inventory count for the selected medicine.
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-muted fs-7">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="text-danger fs-7 mt-1">
+                            {{ field.errors|striptags }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <hr class="my-4 opacity-10">
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'medicine_list' %}" class="btn btn-light px-4">Cancel</a>
+                        <button type="submit" class="btn btn-success px-4 shadow-sm text-white">
+                            <i class="fa-solid fa-plus-circle me-2"></i>Add Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

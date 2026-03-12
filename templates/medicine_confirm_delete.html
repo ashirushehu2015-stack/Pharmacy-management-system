@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Medicine - Pharmacy Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-danger border-top border-4 glass-panel">
+            <div class="card-body p-4 text-center">
+                <div class="mb-4">
+                    <i class="fa-solid fa-triangle-exclamation text-danger fa-4x mb-3"></i>
+                    <h3 class="fw-bold fs-4">Delete Medicine</h3>
+                </div>
+
+                <p class="text-muted fs-6 mb-4">
+                    Are you sure you want to delete <strong>{{ medicine.name }} ({{ medicine.brand }})</strong>?<br>
+                    <span class="text-danger fs-7"><i class="fa-solid fa-circle-info me-1"></i>This action cannot be
+                        undone.</span>
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'medicine_list' %}" class="btn btn-light px-4">Cancel</a>
+                        <button type="submit" class="btn btn-danger px-4 shadow-sm">
+                            <i class="fa-solid fa-trash me-2"></i> Yes, Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

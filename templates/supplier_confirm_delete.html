@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Supplier - MIT 820 Group 4 Pharmacy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 mt-5">
+            <div class="card-body p-5 text-center">
+                <div class="mb-4">
+                    <i class="fa-solid fa-triangle-exclamation fa-3x text-danger opacity-75"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Delete Supplier?</h4>
+                <p class="text-muted mb-4">
+                    Are you sure you want to delete <strong>"{{ supplier.name }}"</strong>? This action cannot be
+                    undone.
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger py-2 shadow-sm">
+                            <i class="fa-solid fa-trash-can me-2"></i>Yes, Delete Supplier
+                        </button>
+                        <a href="{% url 'supplier_list' %}" class="btn btn-light py-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

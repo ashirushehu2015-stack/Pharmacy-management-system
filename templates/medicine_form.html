@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Medicine - Pharmacy Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+    <a href="{% url 'medicine_list' %}" class="btn btn-outline-secondary btn-sm me-3" title="Back to Inventory">
+        <i class="fa-solid fa-arrow-left"></i>
+    </a>
+    <h2 class="fw-bold mb-0">{{ action }} Medicine</h2>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 glass-panel">
+            <div class="card-body p-4 p-md-5">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted fw-semibold">Generic Name <span
+                                    class="text-danger">*</span></label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <div class="text-danger fs-7 mt-1">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted fw-semibold">Brand Name <span
+                                    class="text-danger">*</span></label>
+                            {{ form.brand }}
+                            {% if form.brand.errors %}
+                            <div class="text-danger fs-7 mt-1">{{ form.brand.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted fw-semibold">Category <span
+                                    class="text-danger">*</span></label>
+                            {{ form.category }}
+                            <div class="form-text fs-8">e.g., Antibiotic, Painkiller</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted fw-semibold">Price ($) <span
+                                    class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.price }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted fw-semibold">Current Stock <span
+                                    class="text-danger">*</span></label>
+                            {{ form.stock_quantity }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted fw-semibold">Reorder Level <span
+                                    class="text-danger">*</span></label>
+                            {{ form.reorder_level }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted fw-semibold">Expiry Date <span
+                                    class="text-danger">*</span></label>
+                            {{ form.expiry_date }}
+                        </div>
+                    </div>
+
+                    <hr class="my-4 text-muted">
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'medicine_list' %}" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fa-solid fa-save me-2"></i> Save Medicine
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

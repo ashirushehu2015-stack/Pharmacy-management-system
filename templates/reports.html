@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - Pharmacy Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fa-solid fa-file-export me-2 text-primary"></i>System Reports</h2>
+    <div class="text-muted fs-7">
+        Export data in CSV format for external analysis
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Inventory Export -->
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 glass-panel border-top border-primary border-4">
+            <div class="card-body p-4 text-center">
+                <i class="fa-solid fa-boxes-stacked fa-3x text-primary mb-3 opacity-75"></i>
+                <h5 class="fw-bold mb-2">Inventory List</h5>
+                <p class="text-muted fs-7 mb-4">Export the current stock levels, pricing, and reorder levels for all
+                    medicines.</p>
+
+                <a href="{% url 'export_inventory' %}" class="btn btn-primary w-100 shadow-sm">
+                    <i class="fa-solid fa-download me-2"></i> Export CSV
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prescriptions Export -->
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 glass-panel border-top border-success border-4">
+            <div class="card-body p-4 text-center">
+                <i class="fa-solid fa-file-prescription fa-3x text-success mb-3 opacity-75"></i>
+                <h5 class="fw-bold mb-2">Prescription Log</h5>
+                <p class="text-muted fs-7 mb-4">Export a log of all prescriptions filled and pending within the system.
+                </p>
+
+                <a href="{% url 'export_prescriptions' %}" class="btn btn-success w-100 shadow-sm">
+                    <i class="fa-solid fa-download me-2"></i> Export CSV
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Export -->
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 glass-panel border-top border-warning border-4">
+            <div class="card-body p-4 text-center">
+                <i class="fa-solid fa-file-invoice-dollar fa-3x text-warning mb-3 opacity-75"></i>
+                <h5 class="fw-bold mb-2">Sales Report</h5>
+                <p class="text-muted fs-7 mb-4">Export detailed sales transactions including OTC sales and filled
+                    prescriptions.</p>
+
+                <a href="{% url 'export_sales' %}" class="btn btn-warning w-100 shadow-sm text-dark">
+                    <i class="fa-solid fa-download me-2"></i> Export CSV
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Suppliers - MIT 820 Group 4 Pharmacy{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fa-solid fa-truck-field me-2 text-primary"></i>Suppliers</h2>
+    <a href="{% url 'supplier_create' %}" class="btn btn-primary shadow-sm">
+        <i class="fa-solid fa-plus me-2"></i>Add Supplier
+    </a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-muted fs-7">
+                    <tr>
+                        <th class="ps-4">Supplier Name</th>
+                        <th>Contact Person</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for supplier in suppliers %}
+                    <tr>
+                        <td class="ps-4">
+                            <h6 class="mb-0 fw-bold">{{ supplier.name }}</h6>
+                        </td>
+                        <td>{{ supplier.contact_person|default:"-" }}</td>
+                        <td>{{ supplier.phone|default:"-" }}</td>
+                        <td>{{ supplier.email|default:"-" }}</td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'supplier_update' supplier.pk %}"
+                                class="btn btn-sm btn-outline-secondary border-0 me-1" title="Edit">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <a href="{% url 'supplier_delete' supplier.pk %}"
+                                class="btn btn-sm btn-outline-danger border-0" title="Delete">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-info-circle fa-2x mb-3 opacity-25"></i>
+                            <h6>No suppliers found.</h6>
+                            <p class="fs-7 mb-0">Add your first supplier to start tracking stock entries.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

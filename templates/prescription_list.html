@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Prescriptions - Pharmacy Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fa-solid fa-file-prescription me-2 text-primary"></i>Prescriptions</h2>
+    {% if user.is_admin or user.is_pharmacist %}
+    <a href="{% url 'prescription_create' %}" class="btn btn-primary shadow-sm">
+        <i class="fa-solid fa-plus me-1"></i> New Prescription
+    </a>
+    {% endif %}
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4 px-2 border-bottom-0">
+    <li class="nav-item">
+        <a class="nav-link fw-semibold rounded-top-3 px-4 py-3 {% if status_filter == 'pending' %}active shadow-sm border-bottom-0{% else %}text-muted{% endif %}"
+            href="?status=pending">
+            <i class="fa-solid fa-clock opacity-75 me-2"></i>Pending
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link fw-semibold rounded-top-3 px-4 py-3 {% if status_filter == 'filled' %}active shadow-sm border-bottom-0{% else %}text-muted{% endif %}"
+            href="?status=filled">
+            <i class="fa-solid fa-check opacity-75 me-2"></i>Filled
+        </a>
+    </li>
+</ul>
+
+<div class="card shadow-sm border-top-0 rounded-top-0 rounded-bottom-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Patient Name</th>
+                        <th>Medicine</th>
+                        <th>Quantity</th>
+                        <th>Dosage</th>
+                        <th>Date Prescribed</th>
+                        {% if status_filter == 'filled' %}
+                        <th>Filled By/Date</th>
+                        {% endif %}
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in prescriptions %}
+                    <tr class="clickable-row" data-href="{% url 'prescription_detail' p.pk %}">
+                        <td class="ps-4 fw-medium">{{ p.patient_name }}</td>
+                        <td>
+                            <div>{{ p.medicine.name }}</div>
+                            <small class="text-muted">{{ p.medicine.brand }}</small>
+                        </td>
+                        <td><span class="badge bg-secondary opacity-75">{{ p.quantity }}</span></td>
+                        <td><small>{{ p.dosage }}</small></td>
+                        <td>{{ p.date_prescribed|date:"M d, Y" }}</td>
+
+                        {% if status_filter == 'filled' %}
+                        <td>
+                            <div><small><i class="fa-solid fa-user me-1 text-muted"></i>{{
+                                    p.filled_by.username|default:"Unknown" }}</small></div>
+                            <small class="text-muted">{{ p.filled_date|date:"h:i A, M d" }}</small>
+                        </td>
+                        <td class="text-end pe-4">
+                            <span
+                                class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                                <i class="fa-solid fa-check me-1"></i>Completed
+                            </span>
+                        </td>
+                        {% else %}
+                        <td class="text-end pe-4">
+                            {% if user.is_admin or user.is_pharmacist %}
+                            <a href="{% url 'prescription_detail' p.pk %}" class="btn btn-sm btn-primary"
+                                onclick="event.stopPropagation();">
+                                <i class="fa-solid fa-pills me-1"></i> Fill
+                            </a>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted p-5">
+                            <i class="fa-solid fa-folder-open fa-3x mb-3 text-secondary opacity-50"></i>
+                            <h5>No {{ status_filter }} prescriptions found.</h5>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var rows = document.querySelectorAll(".clickable-row");
+        rows.forEach(function (row) {
+            row.style.cursor = "pointer";
+            row.addEventListener("click", function () {
+                window.location = this.dataset.href;
+            });
+        });
+    });
+</script>
+{% endblock %}
