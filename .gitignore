@@ -21,8 +21,8 @@ ENV/
 staticfiles/
 
 # Docker
-.dockerignore
-docker-compose.yml
+# .dockerignore
+# docker-compose.yml
 
 # IDEs
 .vscode/
