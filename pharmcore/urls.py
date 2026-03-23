@@ -3,8 +3,9 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-    path('', views.dashboard, name='dashboard'),
-    path('login/', auth_views.LoginView.as_view(), name='login'),
+    path('', views.landing_page, name='landing'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('login/', auth_views.LoginView.as_view(template_name='landing.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     
     path('inventory/', views.medicine_list, name='medicine_list'),
@@ -25,6 +26,11 @@ urlpatterns = [
     path('reports/export/inventory/', views.export_inventory, name='export_inventory'),
     path('reports/export/prescriptions/', views.export_prescriptions, name='export_prescriptions'),
     path('reports/export/sales/', views.export_sales, name='export_sales'),
+    
+    # Print Reports
+    path('reports/print/inventory/', views.report_inventory_print, name='report_inventory_print'),
+    path('reports/print/low-stock/', views.report_low_stock_print, name='report_low_stock_print'),
+    path('reports/print/sales/', views.report_sales_print, name='report_sales_print'),
 
     # Supplier URLs
     path('suppliers/', views.supplier_list, name='supplier_list'),
