@@ -1,16 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from .models import Medicine, Prescription, Sale, Supplier, StockEntry
-from .forms import MedicineForm, PrescriptionForm, SaleForm, SupplierForm, StockEntryForm
 from django.utils import timezone
 from django.db.models import Sum
-from django.contrib import messages
-from .models import Medicine
-from .forms import MedicineForm
+from django.contrib.auth.forms import AuthenticationForm
+from .models import Medicine, Prescription, Sale, Supplier, StockEntry
+from .forms import MedicineForm, PrescriptionForm, SaleForm, SupplierForm, StockEntryForm
 
 def is_admin_or_assistant(user):
     return user.is_authenticated and (user.is_admin() or user.is_assistant())
+
+def landing_page(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    form = AuthenticationForm()
+    return render(request, 'landing.html', {'form': form})
 
 @login_required
 def dashboard(request):
@@ -322,6 +326,37 @@ def export_sales(request):
         ])
 
     return response
+
+# --- Print Report Views ---
+
+@login_required
+def report_inventory_print(request):
+    medicines = Medicine.objects.all().order_by('name')
+    return render(request, 'report_inventory_print.html', {
+        'medicines': medicines,
+        'report_title': 'Full Inventory List',
+        'now': timezone.now()
+    })
+
+@login_required
+def report_low_stock_print(request):
+    medicines = [m for m in Medicine.objects.all() if m.is_low_stock]
+    return render(request, 'report_inventory_print.html', {
+        'medicines': medicines,
+        'report_title': 'Low Stock Alert Report',
+        'now': timezone.now()
+    })
+
+@user_passes_test(lambda u: u.is_authenticated and (u.is_admin() or u.is_pharmacist()))
+def report_sales_print(request):
+    sales = Sale.objects.all().order_by('-date_sold')
+    total_revenue = sales.aggregate(total=Sum('total_price'))['total'] or 0
+    return render(request, 'report_sales_print.html', {
+        'sales': sales,
+        'total_revenue': total_revenue,
+        'report_title': 'Sales Transaction Report',
+        'now': timezone.now()
+    })
 
 
 # --- Supplier Views ---
