@@ -1,0 +1,572 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Welcome | MIT 820 Group 4{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glass-blur: blur(24px);
+        --glow: 0 0 20px rgba(14, 165, 233, 0.4);
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        background-color: #020617; /* Very deep blue/black */
+    }
+
+    /* Override base navbar style for landing page */
+    .navbar {
+        background: rgba(2, 6, 23, 0.7) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        position: fixed !important;
+        width: 100% !important;
+        z-index: 1000 !important;
+        box-shadow: none !important;
+    }
+
+    .navbar-brand {
+        color: white !important;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .nav-link {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-weight: 500;
+    }
+    
+    .nav-link:hover {
+        color: white !important;
+    }
+
+    .main-content {
+        padding: 0 !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .sidebar {
+        display: none !important;
+    }
+
+    /* Animated Background */
+    .hero-section {
+        position: relative;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #020617;
+        padding: 120px 0 60px 0;
+    }
+
+    .hero-gradient-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.15), transparent 40%),
+            radial-gradient(circle at 85% 30%, rgba(37, 99, 235, 0.15), transparent 40%);
+        z-index: 2;
+    }
+
+    .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.15;
+        z-index: 1;
+        mix-blend-mode: luminosity;
+    }
+
+    .hero-container {
+        z-index: 10;
+        width: 100%;
+        position: relative;
+    }
+
+    .landing-content {
+        color: white;
+    }
+
+    .badge-premium {
+        background: rgba(14, 165, 233, 0.1);
+        border: 1px solid rgba(14, 165, 233, 0.3);
+        color: #38bdf8;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(to right, #ffffff, #94a3b8);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1.1;
+        letter-spacing: -1px;
+    }
+    
+    .hero-title span {
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle-custom {
+        color: #94a3b8 !important;
+        font-size: 1.25rem;
+        line-height: 1.7;
+        max-width: 600px;
+        font-weight: 400;
+    }
+
+    /* Glass Card Enhancements */
+    .login-glass-card {
+        background: var(--glass-bg);
+        -webkit-backdrop-filter: var(--glass-blur);
+        backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 3rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .login-glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    }
+
+    .form-label {
+        color: #cbd5e1;
+        font-weight: 500;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control-custom {
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        color: white !important;
+        padding: 0.8rem 1.25rem !important;
+        font-size: 1rem;
+        transition: all 0.3s ease !important;
+    }
+
+    .form-control-custom:focus {
+        background: rgba(15, 23, 42, 0.8) !important;
+        border-color: #0ea5e9 !important;
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15) !important;
+    }
+    
+    .form-control-custom::placeholder {
+        color: #64748b !important;
+    }
+
+    .btn-login {
+        background: var(--primary-gradient);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        padding: 1rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        width: 100%;
+        margin-top: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-login::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%; width: 50%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: 0.5s;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(14, 165, 233, 0.5);
+    }
+    
+    .btn-login:hover::after {
+        left: 100%;
+    }
+
+    /* Stats Section */
+    .stats-section {
+        padding: 4rem 0;
+        background: #020617;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        position: relative;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 3rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 0.5rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .stat-label {
+        color: #94a3b8;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+    }
+
+    /* Features Grid */
+    .features-section {
+        padding: 8rem 2rem;
+        background-color: #0f172a;
+        color: white;
+        position: relative;
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 5rem;
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .text-highlight { color: #38bdf8; }
+    .section-subtitle { max-width: 600px; font-size: 1.1rem; }
+
+    .feature-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 2.5rem;
+        border-radius: 24px;
+        height: 100%;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card:hover {
+        background: rgba(255, 255, 255, 0.04);
+        transform: translateY(-10px);
+        border-color: rgba(14, 165, 233, 0.3);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4), var(--glow);
+    }
+
+    .feature-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        background: rgba(14, 165, 233, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover .feature-icon-wrapper {
+        background: var(--primary-gradient);
+        border-color: transparent;
+    }
+
+    .feature-icon {
+        font-size: 1.5rem;
+        color: #38bdf8;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover .feature-icon {
+        color: white;
+    }
+    
+    .feature-card h4 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-card p {
+        color: #94a3b8;
+        line-height: 1.6;
+    }
+
+    /* Footer */
+    .landing-footer {
+        background: #020617;
+        padding: 3rem 0;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        color: #64748b;
+        text-align: center;
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+
+    /* Animation on scroll classes */
+    .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Buttons */
+    .btn-outline-light-custom {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        background: rgba(255,255,255,0.05);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+    }
+    
+    .btn-outline-light-custom:hover {
+        background: white;
+        color: #0f172a;
+        transform: translateY(-2px);
+    }
+    
+    @media (max-width: 991px) {
+        .hero-title { font-size: 3rem; }
+        .hero-section { padding-top: 150px; }
+        .login-glass-card { margin-top: 3rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <!-- Hero Backgrounds -->
+    <div class="hero-gradient-overlay"></div>
+    <img src="https://images.unsplash.com/photo-1581595220893-b0739ece1669?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Pharmacy" class="hero-bg">
+    
+    <div class="container hero-container">
+        <div class="row align-items-center">
+            <div class="col-lg-7 landing-content reveal">
+                <div class="badge-premium">
+                    <i class="fa-solid fa-bolt text-warning"></i> Next-Gen Pharmacy Management
+                </div>
+                <h1 class="hero-title">Intelligent Care Starts With <span>Smarter Systems</span>.</h1>
+                <p class="mb-5 hero-subtitle-custom">
+                    Enterprise-grade inventory management, seamless prescriptions, and data-driven insights. Built specifically for modern pharmacies.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#features" class="btn-outline-light-custom">
+                        Explore Features <i class="fa-solid fa-arrow-down ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-5 reveal reveal-delay-2">
+                <div class="login-glass-card">
+                    <h3 class="fw-bold mb-1 text-white">System Access</h3>
+                    <p class="text-muted mb-4 small">Enter your credentials to access the portal.</p>
+                    
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control form-control-custom" placeholder="e.g. admin" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control form-control-custom" placeholder="••••••••" required>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input bg-transparent border-secondary" type="checkbox" id="rememberMe">
+                                <label class="form-check-label text-muted small" for="rememberMe">
+                                    Remember me
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-login">
+                            Secure Login <i class="fa-solid fa-arrow-right-to-bracket ms-2"></i>
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-4 pt-3 border-top border-secondary border-opacity-25">
+                        <small class="text-muted"><i class="fa-solid fa-shield-halved me-1 text-success"></i> 256-bit encrypted connection</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section reveal">
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-item">
+                    <div class="stat-value">10K+</div>
+                    <div class="stat-label">Medicines Tracked</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-item">
+                    <div class="stat-value">99.9%</div>
+                    <div class="stat-label">System Uptime</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-item">
+                    <div class="stat-value">Real-time</div>
+                    <div class="stat-label">Data Sync</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-item">
+                    <div class="stat-value">24/7</div>
+                    <div class="stat-label">Security Monitoring</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features-section">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2 class="section-title">Everything you need to <span class="text-highlight">scale</span>.</h2>
+            <p class="text-muted mx-auto section-subtitle">Powerful tools built into one unified platform to help you manage inventory, serve patients faster, and track your growth.</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 reveal reveal-delay-1">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-boxes-stacked feature-icon"></i>
+                    </div>
+                    <h4>Smart Inventory</h4>
+                    <p class="mb-0">Automated stock monitoring with intelligent reorder triggers and expiry prediction to prevent waste and shortages.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal reveal-delay-2">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-id-card-clip feature-icon"></i>
+                    </div>
+                    <h4>Prescription Portal</h4>
+                    <p class="mb-0">Secure tracking of medical prescriptions with instant stock verification, patient history, and automated dispensing workflows.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal reveal-delay-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-chart-pie feature-icon"></i>
+                    </div>
+                    <h4>Advanced Analytics</h4>
+                    <p class="mb-0">High-performance data engine providing real-time sales, turnover visualizations, and actionable financial insights.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="landing-footer reveal">
+    <div class="container">
+        <div class="d-flex flex-column align-items-center">
+            <h5 class="text-white fw-bold mb-3 d-flex align-items-center">
+                <i class="fa-solid fa-staff-snake text-primary me-2 fs-4"></i> MIT 820 Group 4
+            </h5>
+            <p class="small mb-0">&copy; {% now "Y" %} Pharmacy Management System. All rights reserved.</p>
+            <div class="mt-3">
+                <small>Secure. Fast. Reliable.</small>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Smooth reveal animation
+    function reveal() {
+        var reveals = document.querySelectorAll(".reveal");
+        for (var i = 0; i < reveals.length; i++) {
+            var windowHeight = window.innerHeight;
+            var elementTop = reveals[i].getBoundingClientRect().top;
+            var elementVisible = 100;
+            if (elementTop < windowHeight - elementVisible) {
+                reveals[i].classList.add("active");
+            }
+        }
+    }
+    
+    window.addEventListener("scroll", reveal);
+    window.addEventListener("load", reveal);
+    
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+{% endblock %}
