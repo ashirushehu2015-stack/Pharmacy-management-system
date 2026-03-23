@@ -36,6 +36,7 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy project
 COPY . /app/
+RUN chmod +x /app/start.sh
 
 # Create directory for static files
 RUN mkdir -p /app/staticfiles
@@ -47,4 +48,4 @@ RUN python manage.py collectstatic --noinput
 EXPOSE 8000
 
 # Start the application using Gunicorn (for production)
-CMD ["sh", "-c", "python manage.py migrate && python manage.py createsuperuser --noinput || true && gunicorn --bind 0.0.0.0:8000 pharmacy_management_system.wsgi:application"]
+CMD ["/app/start.sh"]
