@@ -12,7 +12,7 @@
 
 <div class="row justify-content-center">
     <div class="col-lg-8">
-        <div class="card shadow-sm border-0 glass-panel border-top border-primary border-4">
+        <div class="card shadow-sm border-0 border-top border-primary border-4">
             <div class="card-body p-4 p-md-5">
                 <form method="post">
                     {% csrf_token %}
@@ -27,6 +27,7 @@
                             <label class="form-label text-muted fw-semibold">Prescribed Medicine <span
                                     class="text-danger">*</span></label>
                             {{ form.medicine }}
+                            <div class="form-text small opacity-50">Available medicines: {{ form.fields.medicine.queryset.count }}</div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted fw-semibold">Quantity <span
