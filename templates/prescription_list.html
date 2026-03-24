@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold"><i class="fa-solid fa-file-prescription me-2 text-primary"></i>Prescriptions</h2>
-    {% if user.is_admin or user.is_pharmacist or user.is_assistant %}
+    {% if user.role == 'ADMIN' or user.role == 'PHARMACIST' or user.role == 'ASSISTANT' %}
     <a href="{% url 'prescription_create' %}" class="btn btn-primary shadow-sm">
         <i class="fa-solid fa-plus me-1"></i> New Prescription
     </a>
