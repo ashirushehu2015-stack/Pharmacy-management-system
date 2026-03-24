@@ -45,4 +45,7 @@ urlpatterns = [
 
     # Stock Entry URLs
     path('stock/add/', views.stock_entry_create, name='stock_entry_create'),
+    
+    # System Setup URL
+    path('setup-system/', views.setup_system, name='setup_system'),
 ]

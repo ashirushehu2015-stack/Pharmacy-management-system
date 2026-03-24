@@ -458,3 +458,45 @@ def user_delete(request, pk):
         'title': 'User',
         'cancel_url': 'user_list'
     })
+
+@login_required
+def setup_system(request):
+    # 1. Update current user to ADMIN
+    user = request.user
+    user.role = User.Role.ADMIN
+    user.save()
+    
+    # 2. Add sample medicines if none exist
+    if Medicine.objects.count() == 0:
+        Medicine.objects.create(
+            name="Paracetamol",
+            brand="Panadol",
+            category="Pain Relief",
+            price=1.50,
+            stock_quantity=100,
+            reorder_level=20,
+            expiry_date="2027-12-31"
+        )
+        Medicine.objects.create(
+            name="Amoxicillin",
+            brand="Amoxil",
+            category="Antibiotics",
+            price=12.00,
+            stock_quantity=50,
+            reorder_level=10,
+            expiry_date="2026-06-30"
+        )
+        Medicine.objects.create(
+            name="Ibuprofen",
+            brand="Advil",
+            category="Inflammation",
+            price=4.50,
+            stock_quantity=80,
+            reorder_level=15,
+            expiry_date="2027-01-01"
+        )
+        messages.success(request, 'System initialized with sample data.')
+    
+    messages.success(request, f'Your role has been upgraded to {user.get_role_display()}.')
+    return redirect('dashboard')
+
