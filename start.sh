@@ -1,3 +1,8 @@
+#!/bin/sh
+# Apply database migrations
+echo "Applying database migrations..."
+python manage.py migrate
+
 # Create default users and sample data
 echo "Setting up default users..."
 python manage.py shell -c "
