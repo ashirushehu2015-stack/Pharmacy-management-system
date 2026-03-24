@@ -37,8 +37,14 @@ def dashboard(request):
         'low_stock_count': low_stock_count,
         'today_sales': todays_sales,
         'pending_prescriptions': pending_prescriptions,
-        'low_stock_medicines': low_stock_medicines[:5] # Show top 5
     }
+    
+    # Role-specific data
+    if request.user.role == User.Role.PHARMACIST:
+        context['recent_pending_prescriptions'] = Prescription.objects.filter(filled=False).order_by('-date_prescribed')[:5]
+    else:
+        # Admin and Assistant see low stock items
+        context['low_stock_medicines'] = low_stock_medicines[:5]
     return render(request, 'dashboard.html', context)
 
 @login_required

@@ -11,7 +11,7 @@
 </div>
 
 <div class="row g-4 mb-4">
-    <!-- Total Medicines Card -->
+    <!-- Total Medicines Card (All Roles) -->
     <div class="col-md-6 col-lg-3">
         <div class="card h-100 border-start border-primary border-4">
             <div class="card-body glass-panel">
@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <!-- Low Stock Card -->
+    <!-- Low Stock Card (All Roles) -->
     <div class="col-md-6 col-lg-3">
         <div class="card h-100 border-start border-danger border-4">
             <div class="card-body glass-panel">
@@ -45,7 +45,8 @@
         </div>
     </div>
 
-    <!-- Today's Sales Card -->
+    <!-- Today's Sales Card (Admin & Assistant) -->
+    {% if user.role == 'ADMIN' or user.role == 'ASSISTANT' %}
     <div class="col-md-6 col-lg-3">
         <div class="card h-100 border-start border-success border-4">
             <div class="card-body glass-panel">
@@ -61,8 +62,10 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
-    <!-- Pending Prescriptions Card -->
+    <!-- Pending Prescriptions Card (Admin & Pharmacist) -->
+    {% if user.role == 'ADMIN' or user.role == 'PHARMACIST' %}
     <div class="col-md-6 col-lg-3">
         <div class="card h-100 border-start border-warning border-4">
             <div class="card-body glass-panel">
@@ -78,6 +81,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 
 <div class="row g-4">
@@ -89,7 +93,8 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-3">
-                    <a href="{% url 'medicine_list' %}" class="btn btn-outline-primary text-start">
+                    {% if user.role == 'ADMIN' %}
+                    <a href="{% url 'medicine_create' %}" class="btn btn-outline-primary text-start">
                         <i class="fa-solid fa-plus-circle me-2"></i> Add New Medicine
                     </a>
                     <a href="{% url 'prescription_list' %}" class="btn btn-outline-warning text-start">
@@ -98,13 +103,84 @@
                     <a href="{% url 'reports' %}" class="btn btn-outline-success text-start">
                         <i class="fa-solid fa-file-invoice-dollar me-2"></i> Generate Daily Report
                     </a>
+                    {% elif user.role == 'PHARMACIST' %}
+                    <a href="{% url 'prescription_list' %}" class="btn btn-outline-warning text-start">
+                        <i class="fa-solid fa-file-medical me-2"></i> Process Prescription
+                    </a>
+                    <a href="{% url 'export_prescriptions' %}" class="btn btn-outline-info text-start">
+                        <i class="fa-solid fa-file-export me-2"></i> Export Prescriptions
+                    </a>
+                    <a href="{% url 'medicine_list' %}" class="btn btn-outline-secondary text-start">
+                        <i class="fa-solid fa-boxes-stacked me-2"></i> View Inventory
+                    </a>
+                    {% elif user.role == 'ASSISTANT' %}
+                    <a href="{% url 'sale_create' %}" class="btn btn-outline-success text-start">
+                        <i class="fa-solid fa-cart-shopping me-2"></i> Record Direct Sale
+                    </a>
+                    <a href="{% url 'prescription_create' %}" class="btn btn-outline-primary text-start">
+                        <i class="fa-solid fa-file-circle-plus me-2"></i> New Prescription
+                    </a>
+                    <a href="{% url 'medicine_list' %}" class="btn btn-outline-secondary text-start">
+                        <i class="fa-solid fa-boxes-stacked me-2"></i> View Inventory
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Low Stock Items List (Preview) -->
+    <!-- Role-Specific Table -->
     <div class="col-lg-8">
+        {% if user.role == 'PHARMACIST' %}
+        <!-- Recent Pending Prescriptions List -->
+        <div class="card h-100">
+            <div
+                class="card-header bg-transparent border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold text-warning mb-0"><i class="fa-solid fa-clipboard-prescription me-2"></i>Recent Pending
+                    Prescriptions</h5>
+                <a href="{% url 'prescription_list' %}?status=pending" class="btn btn-sm btn-light fs-7">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_pending_prescriptions %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light text-muted fs-7">
+                            <tr>
+                                <th>Patient</th>
+                                <th>Medicine</th>
+                                <th>Quantity</th>
+                                <th>Prescribed</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            {% for item in recent_pending_prescriptions %}
+                            <tr>
+                                <td class="fw-medium">{{ item.patient_name }}</td>
+                                <td>{{ item.medicine.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.date_prescribed|date:"M d, H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'prescription_fill' item.id %}" class="btn btn-sm btn-warning fs-7">
+                                        <i class="fa-solid fa-check me-1"></i>Fill
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted p-4">
+                    <i class="fa-regular fa-circle-check fa-3x mb-3 text-success opacity-50"></i>
+                    <h6>No pending prescriptions!</h6>
+                    <p class="fs-7 mb-0">All prescriptions are up to date.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <!-- Low Stock Items List (Admin/Assistant) -->
         <div class="card h-100">
             <div
                 class="card-header bg-transparent border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
@@ -129,13 +205,14 @@
                             {% for item in low_stock_medicines %}
                             <tr>
                                 <td class="fw-medium">{{ item.name }} <span class="text-muted fw-normal fs-7">({{
-                                        item.brand }})</span></td>
+                                         item.brand }})</span></td>
                                 <td><span class="badge bg-secondary opacity-75">{{ item.category }}</span></td>
                                 <td><span class="text-danger fw-bold">{{ item.stock_quantity }}</span></td>
                                 <td>{{ item.reorder_level }}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-primary fs-7"><i
-                                            class="fa-solid fa-cart-arrow-down me-1"></i>Reorder</button>
+                                    <a href="{% url 'stock_entry_create' %}?medicine={{ item.id }}" class="btn btn-sm btn-primary fs-7">
+                                        <i class="fa-solid fa-cart-arrow-down me-1"></i>Reorder
+                                    </a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -151,6 +228,7 @@
                 {% endif %}
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
