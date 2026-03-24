@@ -114,7 +114,7 @@ def prescription_list(request):
         'status_filter': status_filter
     })
 
-@user_passes_test(lambda u: u.is_authenticated and (u.is_admin() or u.is_pharmacist()))
+@user_passes_test(lambda u: u.is_authenticated and (u.is_admin() or u.is_pharmacist() or u.is_assistant()))
 def prescription_create(request):
     if request.method == 'POST':
         form = PrescriptionForm(request.POST)
