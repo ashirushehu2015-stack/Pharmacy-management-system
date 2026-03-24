@@ -32,6 +32,11 @@ urlpatterns = [
     path('reports/print/low-stock/', views.report_low_stock_print, name='report_low_stock_print'),
     path('reports/print/sales/', views.report_sales_print, name='report_sales_print'),
 
+    # User Management URLs
+    path('users/', views.user_list, name='user_list'),
+    path('users/add/', views.user_create, name='user_create'),
+    path('users/<int:pk>/delete/', views.user_delete, name='user_delete'),
+
     # Supplier URLs
     path('suppliers/', views.supplier_list, name='supplier_list'),
     path('suppliers/add/', views.supplier_create, name='supplier_create'),

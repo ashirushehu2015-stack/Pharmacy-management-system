@@ -4,8 +4,11 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Sum
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Medicine, Prescription, Sale, Supplier, StockEntry
-from .forms import MedicineForm, PrescriptionForm, SaleForm, SupplierForm, StockEntryForm
+from .models import User, Medicine, Prescription, Sale, Supplier, StockEntry
+from .forms import (
+    MedicineForm, PrescriptionForm, SaleForm, SupplierForm, StockEntryForm,
+    CustomUserCreationForm
+)
 
 def is_admin_or_assistant(user):
     return user.is_authenticated and (user.is_admin() or user.is_assistant())
@@ -420,3 +423,38 @@ def stock_entry_create(request):
             initial_data['medicine'] = initial_med_pk
         form = StockEntryForm(initial=initial_data)
     return render(request, 'stock_entry_form.html', {'form': form})
+# --- User Management Views (Admin only) ---
+
+@user_passes_test(lambda u: u.is_authenticated and u.is_admin())
+def user_list(request):
+    users = User.objects.all().order_by('username')
+    return render(request, 'user_list.html', {'users': users})
+
+@user_passes_test(lambda u: u.is_authenticated and u.is_admin())
+def user_create(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'User created successfully.')
+            return redirect('user_list')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'user_form.html', {'form': form, 'action': 'Create'})
+
+@user_passes_test(lambda u: u.is_authenticated and u.is_admin())
+def user_delete(request, pk):
+    user_to_delete = get_object_or_404(User, pk=pk)
+    if user_to_delete == request.user:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('user_list')
+    
+    if request.method == 'POST':
+        user_to_delete.delete()
+        messages.success(request, 'User deleted successfully.')
+        return redirect('user_list')
+    return render(request, 'supplier_confirm_delete.html', {
+        'object': user_to_delete, 
+        'title': 'User',
+        'cancel_url': 'user_list'
+    })

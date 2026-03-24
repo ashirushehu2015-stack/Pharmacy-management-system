@@ -1,5 +1,16 @@
 from django import forms
-from .models import Medicine, Prescription, Sale, Supplier, StockEntry
+from django.contrib.auth.forms import UserCreationForm
+from .models import User, Medicine, Prescription, Sale, Supplier, StockEntry
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = UserCreationForm.Meta.fields + ('email', 'role',)
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'role': forms.Select(attrs={'class': 'form-select'}),
+        }
 
 class MedicineForm(forms.ModelForm):
     class Meta:
