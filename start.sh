@@ -1,11 +1,17 @@
-#!/bin/sh
-# Apply database migrations
-echo "Applying database migrations..."
-python manage.py migrate
-
-# Create superuser (ignore if fails/already exists)
-echo "Creating superuser..."
-python manage.py createsuperuser --noinput || true
+# Create default users and sample data
+echo "Setting up default users..."
+python manage.py shell -c "
+from pharmcore.models import User
+if not User.objects.filter(username='admin').exists():
+    User.objects.create_superuser('admin', 'admin@example.com', 'admin123', role='ADMIN')
+    print('Admin created.')
+if not User.objects.filter(username='pharmacist').exists():
+    u = User.objects.create_user('pharmacist', 'pharmacist@example.com', 'password123', role='PHARMACIST')
+    print('Pharmacist created.')
+if not User.objects.filter(username='assistant').exists():
+    u = User.objects.create_user('assistant', 'assistant@example.com', 'password123', role='ASSISTANT')
+    print('Assistant created.')
+"
 
 # Start Gunicorn server
 echo "Starting gunicorn server on port ${PORT:-8000}..."
