@@ -1,0 +1,36 @@
+{% extends 'report_print.html' %}
+
+{% block report_table %}
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Brand</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Reorder Level</th>
+            <th>Expiry Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for medicine in medicines %}
+        <tr>
+            <td>{{ medicine.name }}</td>
+            <td>{{ medicine.brand }}</td>
+            <td>{{ medicine.category }}</td>
+            <td>${{ medicine.price }}</td>
+            <td {% if medicine.is_low_stock %}class="text-danger fw-bold" {% endif %}>
+                {{ medicine.stock_quantity }}
+            </td>
+            <td>{{ medicine.reorder_level }}</td>
+            <td>{{ medicine.expiry_date }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" class="text-center">No medicines found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
