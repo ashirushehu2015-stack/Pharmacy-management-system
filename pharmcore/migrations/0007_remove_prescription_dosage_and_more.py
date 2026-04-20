@@ -3,6 +3,18 @@
 from django.db import migrations
 
 
+def migrate_prescription_data(apps, schema_editor):
+    Prescription = apps.get_model('pharmcore', 'Prescription')
+    PrescriptionItem = apps.get_model('pharmcore', 'PrescriptionItem')
+    for p in Prescription.objects.all():
+        if p.medicine_id and not p.items.exists():
+            PrescriptionItem.objects.create(
+                prescription=p,
+                medicine_id=p.medicine_id,
+                quantity=p.quantity,
+                dosage=p.dosage
+            )
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,6 +22,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(migrate_prescription_data),
         migrations.RemoveField(
             model_name='prescription',
             name='dosage',
