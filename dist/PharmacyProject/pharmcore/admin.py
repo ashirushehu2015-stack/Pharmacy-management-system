@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Medicine, Prescription, Sale, Supplier, StockEntry
+from .models import User, Medicine, Prescription, PrescriptionItem, Sale, Supplier, StockEntry
 
 class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
@@ -28,11 +28,20 @@ class StockEntryAdmin(admin.ModelAdmin):
     list_filter = ('supplier', 'date_added')
     search_fields = ('medicine__name',)
 
+class PrescriptionItemInline(admin.TabularInline):
+    model = PrescriptionItem
+    extra = 0
+
 @admin.register(Prescription)
 class PrescriptionAdmin(admin.ModelAdmin):
-    list_display = ('patient_name', 'medicine', 'quantity', 'date_prescribed', 'filled')
+    list_display = ('patient_name', 'item_count', 'total_price', 'date_prescribed', 'filled')
     list_filter = ('filled', 'date_prescribed')
-    search_fields = ('patient_name', 'medicine__name')
+    search_fields = ('patient_name',)
+    inlines = [PrescriptionItemInline]
+
+    def item_count(self, obj):
+        return obj.items.count()
+    item_count.short_description = 'Number of Items'
 
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):

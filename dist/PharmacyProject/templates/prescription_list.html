@@ -50,11 +50,17 @@
                     <tr class="clickable-row" data-href="{% url 'prescription_detail' p.pk %}">
                         <td class="ps-4 fw-medium">{{ p.patient_name }}</td>
                         <td>
-                            <div>{{ p.medicine.name }}</div>
-                            <small class="text-muted">{{ p.medicine.brand }}</small>
+                            {% with items=p.items.all %}
+                                {% if items %}
+                                    <div>{{ items.0.medicine.name }}{% if items.count > 1 %}, ... (+{{ items.count|add:"-1" }}){% endif %}</div>
+                                    <small class="text-muted">{{ items.count }} item{{ items.count|pluralize }} total</small>
+                                {% else %}
+                                    <span class="text-muted small">No items</span>
+                                {% endif %}
+                            {% endwith %}
                         </td>
-                        <td><span class="badge bg-secondary opacity-75">{{ p.quantity }}</span></td>
-                        <td><small>{{ p.dosage }}</small></td>
+                        <td><span class="badge bg-secondary opacity-75">₦{{ p.total_price|floatformat:2 }}</span></td>
+                        <td><small>{% if p.items.exists %}{{ p.items.all.0.dosage }}{% if p.items.count > 1 %}...{% endif %}{% else %}-{% endif %}</small></td>
                         <td>{{ p.date_prescribed|date:"M d, Y" }}</td>
 
                         {% if status_filter == 'filled' %}

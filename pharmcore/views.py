@@ -127,15 +127,23 @@ def prescription_list(request):
 
 @user_passes_test(lambda u: u.is_authenticated and (u.is_admin() or u.is_pharmacist() or u.is_assistant()))
 def prescription_create(request):
+    from .forms import PrescriptionItemFormSet
     if request.method == 'POST':
         form = PrescriptionForm(request.POST)
+        # Create formset early so it's always in context
+        formset = PrescriptionItemFormSet(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Prescription added successfully.')
-            return redirect('prescription_list')
+            prescription = form.save()
+            # Link formset to the newly created prescription
+            formset.instance = prescription
+            if formset.is_valid():
+                formset.save()
+                messages.success(request, 'Prescription added successfully.')
+                return redirect('prescription_list')
     else:
         form = PrescriptionForm()
-    return render(request, 'prescription_form.html', {'form': form})
+        formset = PrescriptionItemFormSet()
+    return render(request, 'prescription_form.html', {'form': form, 'formset': formset})
 
 @user_passes_test(lambda u: u.is_authenticated and (u.is_admin() or u.is_pharmacist()))
 def prescription_fill(request, pk):
@@ -149,33 +157,40 @@ def prescription_fill(request, pk):
             messages.error(request, 'This prescription has already been filled.')
             return redirect('prescription_list')
             
-        medicine = prescription.medicine
-        
-        if medicine.stock_quantity < prescription.quantity:
-            messages.error(request, f'Insufficient stock for {medicine.name}. Only {medicine.stock_quantity} available.')
+        items = prescription.items.all()
+        if not items.exists():
+            messages.error(request, 'Empty prescription cannot be filled.')
             return redirect('prescription_detail', pk=pk)
+
+        # 1. Validation check for all items first
+        for item in items:
+            if item.medicine.stock_quantity < item.quantity:
+                messages.error(request, f'Insufficient stock for {item.medicine.name}. Available: {item.medicine.stock_quantity}')
+                return redirect('prescription_detail', pk=pk)
             
-        # Deduct stock
-        medicine.stock_quantity -= prescription.quantity
-        medicine.save()
-        
-        # Mark as filled
+        # 2. Process all items
+        for item in items:
+            medicine = item.medicine
+            # Deduct stock
+            medicine.stock_quantity -= item.quantity
+            medicine.save()
+            
+            # Create a sale record
+            Sale.objects.create(
+                prescription=prescription,
+                medicine=medicine,
+                quantity=item.quantity,
+                total_price=medicine.price * item.quantity,
+                sold_by=request.user
+            )
+            
+        # 3. Mark prescription as filled
         prescription.filled = True
         prescription.filled_by = request.user
         prescription.filled_date = timezone.now()
         prescription.save()
         
-        # Create a sale record
-        total_price = medicine.price * prescription.quantity
-        Sale.objects.create(
-            prescription=prescription,
-            medicine=medicine,
-            quantity=prescription.quantity,
-            total_price=total_price,
-            sold_by=request.user
-        )
-        
-        messages.success(request, 'Prescription filled and stock deducted successfully.')
+        messages.success(request, f'Prescription for {prescription.patient_name} filled successfully ({items.count()} items).')
         return redirect('prescription_list')
         
     return render(request, 'prescription_detail.html', {'prescription': prescription})

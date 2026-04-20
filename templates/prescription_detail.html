@@ -37,46 +37,36 @@
             </div>
             <div class="card-body px-4 pb-4 px-md-5">
 
-                <div class="row g-4 mb-4 bg-light bg-opacity-50 p-3 rounded-4 border border-light">
-                    <div class="col-md-6 border-end">
-                        <small class="text-muted d-block text-uppercase fw-semibold mb-1">Medication</small>
-                        <h5 class="fw-bold text-primary mb-0">{{ prescription.medicine.name }}</h5>
-                        <p class="mb-0 text-muted fs-7">{{ prescription.medicine.brand }} ({{ prescription.medicine.category }})</p>
-                    </div>
-                    <div class="col-md-3 border-end">
-                        <small class="text-muted d-block text-uppercase fw-semibold mb-1">Prescribed Qty</small>
-                        <h5 class="fw-bold mb-0">{{ prescription.quantity }} Units</h5>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted d-block text-uppercase fw-semibold mb-1">Available Stock</small>
-                        <h5 class="fw-bold {% if prescription.medicine.stock_quantity < prescription.quantity %}text-danger{% else %}text-success{% endif %} mb-0">
-                            {{ prescription.medicine.stock_quantity }} Units
-                        </h5>
-                    </div>
-                </div>
-
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <small class="text-muted d-block text-uppercase fw-semibold mb-2"><i class="fa-solid fa-user-doctor me-2"></i>Prescribed By</small>
-                        <p class="fw-medium fs-6 text-dark bg-white border border-dashed p-2 rounded">
-                            {% if prescription.filled %}
-                                {{ prescription.filled_by.username|title }} (Dispenser)
-                            {% else %}
-                                {{ prescription.prescriber|default:"Not Specified" }}
-                            {% endif %}
-                        </p>
-                    </div>
-                    <div class="col-md-6">
-                        <small class="text-muted d-block text-uppercase fw-semibold mb-2"><i class="fa-solid fa-receipt me-2"></i>Order Cost Estimate</small>
-                        <p class="fw-bold fs-5 text-dark">₦{{ prescription.total_price|floatformat:2 }}</p>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <small class="text-muted d-block text-uppercase fw-semibold mb-2"><i class="fa-solid fa-prescription-bottle-medical me-2"></i>Dosage Instructions</small>
-                    <div class="p-3 bg-white border rounded-3 text-dark fw-medium fs-5 font-monospace shadow-sm">
-                        {{ prescription.dosage }}
-                    </div>
+                <div class="table-responsive mb-4">
+                    <table class="table table-hover align-middle border-top">
+                        <thead class="table-light fs-7 text-uppercase fw-bold text-muted">
+                            <tr>
+                                <th class="ps-3">Medicine</th>
+                                <th>Dosage</th>
+                                <th>Qty</th>
+                                <th class="text-end pe-3">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in prescription.items.all %}
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="fw-bold text-dark">{{ item.medicine.name }}</div>
+                                    <small class="text-muted">{{ item.medicine.brand }}</small>
+                                </td>
+                                <td><span class="badge bg-light text-dark border fw-medium">{{ item.dosage }}</span></td>
+                                <td>{{ item.quantity }}</td>
+                                <td class="text-end pe-3 fw-bold">₦{{ item.item_total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light border-top-0">
+                            <tr class="fs-5 fw-bold text-dark">
+                                <td colspan="3" class="text-end ps-3">Grand Total</td>
+                                <td class="text-end pe-3 text-primary">₦{{ prescription.total_price|floatformat:2 }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
 
                 <div class="row g-3 fs-7 text-muted border-top border-light pt-3">
@@ -84,9 +74,8 @@
                         <i class="fa-regular fa-calendar-plus me-1"></i> <strong>Registered:</strong> {{ prescription.date_prescribed|date:"M d, Y (h:i A)" }}
                     </div>
                     {% if prescription.filled %}
-                    <div class="col-sm-6">
-                        <i class="fa-solid fa-clipboard-check me-1 text-success"></i> <strong>Filled by:</strong> {{ prescription.filled_by.username }}<br>
-                        <span class="ms-4">{{ prescription.filled_date|date:"M d, Y (h:i A)" }}</span>
+                    <div class="col-sm-6 text-sm-end">
+                        <i class="fa-solid fa-clipboard-check me-1 text-success"></i> <strong>Filled by:</strong> {{ prescription.filled_by.username|title }} &bull; {{ prescription.filled_date|date:"M d, Y (h:i A)" }}
                     </div>
                     {% endif %}
                 </div>
@@ -94,19 +83,18 @@
 
             {% if not prescription.filled and user.is_admin or not prescription.filled and user.is_pharmacist or not prescription.filled and user.is_assistant %}
             <div class="card-footer bg-light p-4 d-flex justify-content-between align-items-center">
-                {% if prescription.medicine.stock_quantity < prescription.quantity %}
-                <div class="text-danger fw-semibold">
-                    <i class="fa-solid fa-circle-exclamation me-1"></i> Insufficient stock available to fill this prescription.
+                {% if not prescription.items.exists %}
+                <div class="text-warning fw-semibold">
+                    <i class="fa-solid fa-circle-exclamation me-1"></i> This prescription has no items.
                 </div>
-                <a class="btn btn-primary" href="{% url 'stock_entry_create' %}?medicine={{ prescription.medicine.pk }}">Add Stock</a>
                 {% else %}
-                <div class="text-muted fs-7">
-                    Grand Total: <strong class="text-dark fs-5">₦{{ prescription.total_price|floatformat:2 }}</strong>
+                <div class="text-muted fs-7 d-none d-md-block">
+                    Confirm all items are available before marking as filled.
                 </div>
                 <form method="post" action="{% url 'prescription_fill' prescription.pk %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-success px-4 shadow-sm btn-lg fs-6">
-                        <i class="fa-solid fa-pills me-2"></i> Mark as Filled & Deduct Stock
+                        <i class="fa-solid fa-pills me-2"></i> Mark Prescription as Filled
                     </button>
                 </form>
                 {% endif %}

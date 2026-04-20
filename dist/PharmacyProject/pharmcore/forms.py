@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, Medicine, Prescription, Sale, Supplier, StockEntry
+from .models import User, Medicine, Prescription, PrescriptionItem, Sale, Supplier, StockEntry
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -29,14 +29,29 @@ class MedicineForm(forms.ModelForm):
 class PrescriptionForm(forms.ModelForm):
     class Meta:
         model = Prescription
-        fields = ['patient_name', 'prescriber', 'medicine', 'quantity', 'dosage']
+        fields = ['patient_name', 'prescriber']
         widgets = {
             'patient_name': forms.TextInput(attrs={'class': 'form-control'}),
             'prescriber': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Dr. Name'}),
+        }
+
+class PrescriptionItemForm(forms.ModelForm):
+    class Meta:
+        model = PrescriptionItem
+        fields = ['medicine', 'quantity', 'dosage']
+        widgets = {
             'medicine': forms.Select(attrs={'class': 'form-select'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
             'dosage': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 1 tablet twice daily'}),
         }
+
+PrescriptionItemFormSet = forms.inlineformset_factory(
+    Prescription, 
+    PrescriptionItem, 
+    form=PrescriptionItemForm, 
+    extra=1, 
+    can_delete=True
+)
 
 class SaleForm(forms.ModelForm):
     class Meta:

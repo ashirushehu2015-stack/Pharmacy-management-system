@@ -41,9 +41,6 @@ class Medicine(models.Model):
 
 class Prescription(models.Model):
     patient_name = models.CharField(max_length=150)
-    medicine = models.ForeignKey(Medicine, on_delete=models.RESTRICT, related_name='prescriptions')
-    quantity = models.PositiveIntegerField()
-    dosage = models.CharField(max_length=255)
     prescriber = models.CharField(max_length=150, blank=True, help_text="Doctor who issued the prescription")
     date_prescribed = models.DateTimeField(auto_now_add=True)
     
@@ -52,10 +49,23 @@ class Prescription(models.Model):
     filled_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.patient_name} - {self.medicine.name}"
+        return f"{self.patient_name} - {self.date_prescribed.strftime('%Y-%m-%d')}"
 
     @property
     def total_price(self):
+        return sum(item.item_total for item in self.items.all())
+
+class PrescriptionItem(models.Model):
+    prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE, related_name='items')
+    medicine = models.ForeignKey(Medicine, on_delete=models.RESTRICT, related_name='prescription_items')
+    quantity = models.PositiveIntegerField()
+    dosage = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.medicine.name} for {self.prescription.patient_name}"
+
+    @property
+    def item_total(self):
         return self.medicine.price * self.quantity
 
 class Sale(models.Model):

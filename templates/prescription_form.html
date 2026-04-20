@@ -14,66 +14,86 @@
     <div class="col-lg-8">
         <div class="card shadow-sm border-0 glass-panel border-top border-primary border-4">
             <div class="card-body p-4 p-md-5">
-                <form method="post">
+                <form method="post" id="prescription-form">
                     {% csrf_token %}
 
-                    {% if form.non_field_errors %}
+                    {% if form.non_field_errors or formset.non_form_errors %}
                     <div class="alert alert-danger shadow-sm mb-4">
                         {% for error in form.non_field_errors %}
+                        <p class="mb-0 small"><i class="fa-solid fa-triangle-exclamation me-2"></i>{{ error }}</p>
+                        {% endfor %}
+                        {% for error in formset.non_form_errors %}
                         <p class="mb-0 small"><i class="fa-solid fa-triangle-exclamation me-2"></i>{{ error }}</p>
                         {% endfor %}
                     </div>
                     {% endif %}
 
-                    <div class="row g-4">
-                        <div class="col-12">
+                    <!-- Patient Info -->
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
                             <label class="form-label text-muted fw-semibold">Patient Full Name <span
                                     class="text-danger">*</span></label>
                             {{ form.patient_name }}
-                            {% if form.patient_name.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.patient_name.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
                         </div>
-                        <div class="col-md-8">
-                            <label class="form-label text-muted fw-semibold">Prescribed Medicine <span
-                                    class="text-danger">*</span></label>
-                            {{ form.medicine }}
-                            {% if form.medicine.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.medicine.errors %}{{ error }}{% endfor %}
-                            </div>
-                            {% endif %}
+                        <div class="col-md-6">
+                            <label class="form-label text-muted fw-semibold">Prescribing Doctor</label>
+                            {{ form.prescriber }}
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label text-muted fw-semibold">Quantity <span
-                                    class="text-danger">*</span></label>
-                            {{ form.quantity }}
-                            {% if form.quantity.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.quantity.errors %}{{ error }}{% endfor %}
+                    </div>
+
+                    <h5 class="fw-bold mb-4 d-flex align-items-center">
+                        <i class="fa-solid fa-pills me-2 text-primary"></i> Prescribed Medications
+                    </h5>
+
+                    <!-- Medication Formset -->
+                    <div id="medication-items">
+                        {{ formset.management_form }}
+                        {% for item_form in formset %}
+                        <div class="medication-item card mb-4 border-light shadow-sm position-relative overflow-hidden">
+                            <div class="card-header bg-light bg-opacity-50 border-bottom-0 py-2 d-flex justify-content-between align-items-center">
+                                <span class="badge bg-secondary opacity-75">Item #<span class="item-index">{{ forloop.counter }}</span></span>
+                                {% if formset.can_delete %}
+                                <div class="form-check mb-0 d-none">
+                                    {{ item_form.DELETE }}
+                                </div>
+                                <button type="button" class="btn btn-link text-danger p-0 delete-item" title="Remove Item">
+                                    <i class="fa-solid fa-circle-xmark fs-5"></i>
+                                </button>
+                                {% endif %}
                             </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label text-muted fw-semibold">Dosage Instructions <span
-                                    class="text-danger">*</span></label>
-                            {{ form.dosage }}
-                            {% if form.dosage.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.dosage.errors %}{{ error }}{% endfor %}
+                            <div class="card-body p-4">
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <label class="form-label text-muted fs-7 fw-semibold">Medicine <span class="text-danger">*</span></label>
+                                        {{ item_form.medicine }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-muted fs-7 fw-semibold">Quantity <span class="text-danger">*</span></label>
+                                        {{ item_form.quantity }}
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label text-muted fs-7 fw-semibold">Dosage Instructions <span class="text-danger">*</span></label>
+                                        {{ item_form.dosage }}
+                                    </div>
+                                </div>
+                                {% for hidden in item_form.hidden_fields %}{{ hidden }}{% endfor %}
                             </div>
-                            {% endif %}
                         </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid mb-5">
+                        <button type="button" id="add-medication" class="btn btn-outline-primary border-dashed py-3">
+                            <i class="fa-solid fa-plus-circle me-2"></i> Add Another Medicine
+                        </button>
                     </div>
 
                     <hr class="my-4 text-muted">
 
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{% url 'prescription_list' %}" class="btn btn-light">Cancel</a>
-                        <button type="submit" class="btn btn-primary px-4">
-                            <i class="fa-solid fa-stethoscope me-2"></i> Save Prescription
+                        <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-sm">
+                            <i class="fa-solid fa-stethoscope me-2"></i> Save Final Prescription
                         </button>
                     </div>
                 </form>
@@ -81,4 +101,76 @@
         </div>
     </div>
 </div>
+
+<style>
+    .border-dashed { border-style: dashed !important; border-width: 2px !important; }
+    .medication-item { transition: all 0.3s ease; animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addItemBtn = document.getElementById('add-medication');
+        const container = document.getElementById('medication-items');
+        const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+        
+        addItemBtn.addEventListener('click', function() {
+            let forms = document.getElementsByClassName('medication-item');
+            let formNum = forms.length;
+            let newForm = forms[0].cloneNode(true);
+            
+            // Update labels, names, ids
+            let regex = new RegExp(`items-(\\d)-`, 'g');
+            newForm.innerHTML = newForm.innerHTML.replace(regex, `items-${formNum}-`);
+            
+            // Clear inputs
+            let inputs = newForm.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if(input.type !== 'hidden') input.value = '';
+                if(input.type === 'checkbox') input.checked = false;
+            });
+
+            // Update index display
+            newForm.querySelector('.item-index').textContent = formNum + 1;
+            
+            // Make delete button visible/functional if hidden
+            const deleteBtn = newForm.querySelector('.delete-item');
+            deleteBtn.addEventListener('click', function() {
+                newForm.remove();
+                updateTotalForms();
+            });
+
+            container.appendChild(newForm);
+            totalForms.value = formNum + 1;
+        });
+
+        // Delete functionality for existing forms
+        document.querySelectorAll('.delete-item').forEach((btn, index) => {
+            btn.addEventListener('click', function() {
+                const forms = document.getElementsByClassName('medication-item');
+                if (forms.length > 1) {
+                    btn.closest('.medication-item').remove();
+                    updateTotalForms();
+                } else {
+                    alert("A prescription must have at least one medicine.");
+                }
+            });
+        });
+
+        function updateTotalForms() {
+            let forms = document.getElementsByClassName('medication-item');
+            totalForms.value = forms.length;
+            // Update indices
+            Array.from(forms).forEach((form, i) => {
+                form.querySelector('.item-index').textContent = i + 1;
+                // Re-indexing attributes is complex with vanilla JS innerHTML replacement, 
+                // but for simple cases it works if we re-replace all.
+                // However, for submission, Django just needs the count in TOTAL_FORMS to match the number of forms.
+            });
+        }
+    });
+</script>
 {% endblock %}

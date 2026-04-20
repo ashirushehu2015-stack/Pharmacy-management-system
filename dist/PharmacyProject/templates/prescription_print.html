@@ -81,26 +81,46 @@
                         </div>
                         <div class="col-6">
                             <small class="text-uppercase text-muted fw-bold d-block">Prescribed By</small>
-                            <span class="fs-5 fw-semibold">{{ prescription.prescriber|default:"Internal Physician" }}</span>
+                            <span class="fs-5 fw-semibold">
+                                {% if prescription.filled %}
+                                    {{ prescription.filled_by.username|title }} (Dispenser)
+                                {% else %}
+                                    {{ prescription.prescriber|default:"Internal Physician" }}
+                                {% endif %}
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                <div class="medicine-item mb-4">
-                    <small class="text-uppercase text-muted fw-bold d-block mb-1">Medication & Quantity</small>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">{{ prescription.medicine.name }}</h3>
-                        <span class="badge bg-dark fs-5">Qty: {{ prescription.quantity }}</span>
-                    </div>
-                    <p class="text-muted">{{ prescription.medicine.brand }} - {{ prescription.medicine.category }}</p>
-                </div>
-
-                <div class="dosage-info mb-5">
-                    <small class="text-uppercase text-muted fw-bold d-block mb-1">Instruction / Dosage</small>
-                    <div class="dosage-box">
-                        {{ prescription.dosage }}
-                    </div>
-                </div>
+                <table class="table table-bordered mt-4">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Medication</th>
+                            <th>Quantity</th>
+                            <th>Dosage Instructions</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in prescription.items.all %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.medicine.name }}</strong><br>
+                                <small class="text-muted">{{ item.medicine.brand }}</small>
+                            </td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.dosage }}</td>
+                            <td class="text-end">₦{{ item.item_total|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td colspan="3" class="text-end">Grand Total</td>
+                            <td class="text-end text-primary">₦{{ prescription.total_price|floatformat:2 }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
 
                 <div class="footer mt-5 pt-5 border-top d-flex justify-content-between">
                     <div>
