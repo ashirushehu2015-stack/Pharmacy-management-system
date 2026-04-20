@@ -26,6 +26,10 @@ for s_data in suppliers:
 print('Default suppliers ensured.')
 "
 
+# Seed medicines inventory
+echo "Seeding medicinal inventory..."
+python manage.py seed_medicines
+
 # Start Gunicorn server
 echo "Starting gunicorn server on port ${PORT:-8000}..."
 exec gunicorn --bind 0.0.0.0:${PORT:-8000} \
