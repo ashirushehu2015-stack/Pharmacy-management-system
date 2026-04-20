@@ -70,15 +70,49 @@
         </div>
     </div>
 
-    <!-- Top Selling Medicines -->
-    <div class="col-12">
-        <div class="card shadow-sm border-0 glass-panel">
-            <div class="card-header bg-transparent pt-4 pb-0 border-0">
-                <h6 class="fw-bold text-muted text-uppercase"><i class="fa-solid fa-trophy me-2 text-warning"></i>Top 10
-                    Medicines (By Volume)</h6>
+    <!-- Prescription metrics -->
+    <div class="col-12 mt-4">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm glass-panel bg-primary bg-opacity-10 border-start border-primary border-4">
+                    <div class="card-body p-4 text-center">
+                        <i class="fa-solid fa-file-medical fa-2x text-primary mb-3"></i>
+                        <h6 class="text-muted text-uppercase fw-bold mb-2">Prescriptions Issued</h6>
+                        <h2 class="fw-bold text-primary mb-0">{{ total_prescriptions }}</h2>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <canvas id="topMedsChart" height="80"></canvas>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm glass-panel bg-success bg-opacity-10 border-start border-success border-4">
+                    <div class="card-body p-4 text-center">
+                        <i class="fa-solid fa-check-double fa-2x text-success mb-3"></i>
+                        <h6 class="text-muted text-uppercase fw-bold mb-2">Filled (30d)</h6>
+                        <h2 class="fw-bold text-success mb-0">{{ filled_count }}</h2>
+                    </div>
+                </div>
+            </div>
+    <!-- Staff Accountability & Top Medicines -->
+    <div class="col-12">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 glass-panel h-100">
+                    <div class="card-header bg-transparent pt-4 pb-0 border-0">
+                        <h6 class="fw-bold text-muted text-uppercase"><i class="fa-solid fa-user-doctor me-2"></i>Staff Prescription Performance</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="staffChart" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 glass-panel h-100">
+                    <div class="card-header bg-transparent pt-4 pb-0 border-0">
+                        <h6 class="fw-bold text-muted text-uppercase"><i class="fa-solid fa-trophy me-2 text-warning"></i>Top 10 Medicines (By Volume)</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="topMedsChart" height="150"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -166,18 +200,18 @@
         }
     });
 
-    // Top Medicines Chart (Bar)
-    const topCtx = document.getElementById('topMedsChart').getContext('2d');
-    new Chart(topCtx, {
+    // Staff Performance Chart (Bar)
+    const staffCtx = document.getElementById('staffChart').getContext('2d');
+    new Chart(staffCtx, {
         type: 'bar',
         data: {
-            labels: JSON.parse('{{ top_meds_labels|escapejs }}'),
+            labels: JSON.parse('{{ staff_labels|escapejs }}'),
             datasets: [{
-                label: 'Units Sold',
-                data: JSON.parse('{{ top_meds_data|escapejs }}'),
+                label: 'Prescriptions Issued',
+                data: JSON.parse('{{ staff_data|escapejs }}'),
                 backgroundColor: primaryColor,
-                borderRadius: 6,
-                barPercentage: 0.6
+                borderRadius: 4,
+                barPercentage: 0.5
             }]
         },
         options: {
@@ -189,7 +223,40 @@
                 y: {
                     beginAtZero: true,
                     grid: { color: gridColor },
+                    ticks: { precision: 0, color: textColor }
+                },
+                x: {
+                    grid: { display: false },
                     ticks: { color: textColor }
+                }
+            }
+        }
+    });
+
+    // Top Medicines Chart (Bar)
+    const topCtx = document.getElementById('topMedsChart').getContext('2d');
+    new Chart(topCtx, {
+        type: 'bar',
+        data: {
+            labels: JSON.parse('{{ top_meds_labels|escapejs }}'),
+            datasets: [{
+                label: 'Units Sold',
+                data: JSON.parse('{{ top_meds_data|escapejs }}'),
+                backgroundColor: '#6f42c1',
+                borderRadius: 4,
+                barPercentage: 0.5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { precision: 0, color: textColor }
                 },
                 x: {
                     grid: { display: false },
@@ -199,4 +266,5 @@
         }
     });
 </script>
+{% endblock %}
 {% endblock %}

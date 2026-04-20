@@ -27,21 +27,25 @@ def dashboard(request):
     
     pending_prescriptions = Prescription.objects.filter(filled=False).count()
     
-    # Calculate today's sales
+    # Calculate today's sales and prescriptions
     today = timezone.localtime().date()
     todays_sales = Sale.objects.filter(date_sold__date=today).aggregate(total=Sum('total_price'))['total']
     todays_sales = todays_sales if todays_sales else 0.00
+    
+    todays_prescriptions = Prescription.objects.filter(date_prescribed__date=today).count()
     
     context = {
         'total_medicines': total_medicines,
         'low_stock_count': low_stock_count,
         'today_sales': todays_sales,
         'pending_prescriptions': pending_prescriptions,
+        'todays_prescriptions': todays_prescriptions,
     }
     
     # Role-specific data
     if request.user.role == User.Role.PHARMACIST:
-        context['recent_pending_prescriptions'] = Prescription.objects.filter(filled=False).order_by('-date_prescribed')[:5]
+        # Optimization: prefetch items for the dashboard list
+        context['recent_pending_prescriptions'] = Prescription.objects.filter(filled=False).prefetch_related('items__medicine').order_by('-date_prescribed')[:5]
     else:
         # Admin and Assistant see low stock items
         context['low_stock_medicines'] = low_stock_medicines[:5]
@@ -281,6 +285,20 @@ def analytics(request):
     total_sales_count = Sale.objects.filter(date_sold__gte=thirty_days_ago).count()
     avg_daily_sales = float(monthly_revenue) / 30 if monthly_revenue else 0.00
 
+    # 4. Prescription Metrics (Accountability)
+    total_prescriptions = Prescription.objects.filter(date_prescribed__gte=thirty_days_ago).count()
+    filled_count = Prescription.objects.filter(date_prescribed__gte=thirty_days_ago, filled=True).count()
+    pending_count = Prescription.objects.filter(date_prescribed__gte=thirty_days_ago, filled=False).count()
+    
+    # Prescriptions by Staff member (Accountability leader-board)
+    staff_stats = Prescription.objects.filter(date_prescribed__gte=thirty_days_ago) \
+        .values('prescriber__username') \
+        .annotate(count=Count('id')) \
+        .order_by('-count')
+    
+    staff_labels = [item['prescriber__username'] or 'Unknown' for item in staff_stats]
+    staff_data = [item['count'] for item in staff_stats]
+
     context = {
         'top_meds_labels': json.dumps(top_meds_labels),
         'top_meds_data': json.dumps(top_meds_data),
@@ -291,9 +309,17 @@ def analytics(request):
         'cat_labels': json.dumps(cat_labels),
         'cat_data': json.dumps(cat_data),
         
+        'staff_labels': json.dumps(staff_labels),
+        'staff_data': json.dumps(staff_data),
+        
         'monthly_revenue': float(monthly_revenue),
         'total_sales_count': total_sales_count,
         'avg_daily_sales': avg_daily_sales,
+        
+        'total_precscriptions': total_prescriptions, # typo preserved if any, but let's fix it
+        'total_prescriptions': total_prescriptions,
+        'filled_count': filled_count,
+        'pending_count': pending_count,
     }
     
     return render(request, 'analytics.html', context)
@@ -331,15 +357,26 @@ def export_prescriptions(request):
     response['Content-Disposition'] = f'attachment; filename="prescriptions.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['ID', 'Patient Name', 'Medicine', 'Quantity', 'Date Prescribed', 'Filled', 'Filled By', 'Filled Date'])
+    writer.writerow(['ID', 'Patient Name', 'Prescribed By', 'Medicines', 'Date Prescribed', 'Filled', 'Filled By', 'Filled Date'])
 
     for p in Prescription.objects.all().order_by('-date_prescribed'):
-        filled_by = p.filled_by.username if p.filled_by else "N/A"
+        # Combine all medicine names and quantities for this prescription
+        medicines_list = [f"{item.medicine.name} (x{item.quantity})" for item in p.items.all()]
+        medicines_str = ", ".join(medicines_list)
+        
+        prescriber_name = p.prescriber.get_full_name() or p.prescriber.username if p.prescriber else "Unknown"
+        filled_by = p.filled_by.get_full_name() or p.filled_by.username if p.filled_by else "N/A"
         filled_date = p.filled_date.strftime('%Y-%m-%d %H:%M:%S') if p.filled_date else "N/A"
+        
         writer.writerow([
-            p.id, p.patient_name, p.medicine.name, p.quantity, 
+            p.id, 
+            p.patient_name, 
+            prescriber_name,
+            medicines_str, 
             p.date_prescribed.strftime('%Y-%m-%d %H:%M:%S'), 
-            "Yes" if p.filled else "No", filled_by, filled_date
+            "Yes" if p.filled else "No", 
+            filled_by, 
+            filled_date
         ])
 
     return response
