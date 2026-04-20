@@ -81,13 +81,7 @@
                         </div>
                         <div class="col-6">
                             <small class="text-uppercase text-muted fw-bold d-block">Prescribed By</small>
-                            <span class="fs-5 fw-semibold">
-                                {% if prescription.filled %}
-                                    {{ prescription.filled_by.username|title }} (Dispenser)
-                                {% else %}
-                                    {{ prescription.prescriber|default:"Internal Physician" }}
-                                {% endif %}
-                            </span>
+                            <span class="fs-5 fw-semibold">{{ prescription.prescriber|default:"Internal Physician" }}</span>
                         </div>
                     </div>
                 </div>

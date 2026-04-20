@@ -44,6 +44,7 @@ class Prescription(models.Model):
     medicine = models.ForeignKey(Medicine, on_delete=models.RESTRICT, related_name='prescriptions')
     quantity = models.PositiveIntegerField()
     dosage = models.CharField(max_length=255)
+    prescriber = models.CharField(max_length=150, blank=True, help_text="Doctor who issued the prescription")
     date_prescribed = models.DateTimeField(auto_now_add=True)
     
     filled = models.BooleanField(default=False)
@@ -52,6 +53,10 @@ class Prescription(models.Model):
 
     def __str__(self):
         return f"{self.patient_name} - {self.medicine.name}"
+
+    @property
+    def total_price(self):
+        return self.medicine.price * self.quantity
 
 class Sale(models.Model):
     prescription = models.ForeignKey(Prescription, on_delete=models.SET_NULL, null=True, blank=True, related_name='sale')

@@ -49,8 +49,8 @@ def dashboard(request):
 
 @login_required
 def medicine_list(request):
-    query = request.GET.get('q', '')
-    category = request.GET.get('category', '')
+    query = request.GET.get('q', '').strip()
+    category = request.GET.get('category', '').strip()
     stock_filter = request.GET.get('stock', '')
     
     medicines = Medicine.objects.all()
@@ -58,13 +58,15 @@ def medicine_list(request):
     if query:
         medicines = medicines.filter(name__icontains=query) | medicines.filter(brand__icontains=query)
     if category:
-        medicines = medicines.filter(category__icontains=category)
+        # Use exact match for better filtering from dropdown
+        medicines = medicines.filter(category=category)
         
     if stock_filter == 'low':
         medicines = [m for m in medicines if m.is_low_stock]
         
-    # Get unique categories for filter
-    categories = Medicine.objects.values_list('category', flat=True).distinct()
+    # Get unique categories for filter, excluding empty/None and sorting
+    categories = Medicine.objects.exclude(category__in=['', None]).values_list('category', flat=True)
+    categories = sorted(list(set(categories)))
     
     return render(request, 'medicine_list.html', {
         'medicines': medicines,
@@ -183,6 +185,11 @@ def prescription_detail(request, pk):
     prescription = get_object_or_404(Prescription, pk=pk)
     return render(request, 'prescription_detail.html', {'prescription': prescription})
 
+@login_required
+def prescription_print(request, pk):
+    prescription = get_object_or_404(Prescription, pk=pk)
+    return render(request, 'prescription_print.html', {'prescription': prescription})
+
 # --- Direct OTC Sale Views ---
 
 @user_passes_test(lambda u: u.is_authenticated and (u.is_admin() or u.is_assistant() or u.is_pharmacist()))
@@ -204,7 +211,7 @@ def sale_create(request):
                 sale.total_price = medicine.price * sale.quantity
                 sale.sold_by = request.user
                 sale.save()
-                messages.success(request, f'Direct sale for {medicine.name} registered. Total: ${sale.total_price}')
+                messages.success(request, f'Direct sale for {medicine.name} registered. Total: ₦{sale.total_price}')
                 return redirect('dashboard')
     else:
         form = SaleForm()

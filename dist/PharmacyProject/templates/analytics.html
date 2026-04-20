@@ -19,7 +19,7 @@
             <div class="card-body p-4 text-center">
                 <i class="fa-solid fa-coins fa-2x text-success mb-3 opacity-75"></i>
                 <h6 class="text-muted text-uppercase fw-bold mb-2">Monthly Revenue</h6>
-                <h2 class="fw-bold text-success mb-0">${{ monthly_revenue|floatformat:2 }}</h2>
+                <h2 class="fw-bold text-success mb-0">₦{{ monthly_revenue|floatformat:2 }}</h2>
             </div>
         </div>
     </div>
@@ -37,7 +37,7 @@
             <div class="card-body p-4 text-center">
                 <i class="fa-solid fa-chart-bar fa-2x text-warning mb-3 opacity-75"></i>
                 <h6 class="text-muted text-uppercase fw-bold mb-2">Avg. Daily Sales</h6>
-                <h2 class="fw-bold mb-0">${{ avg_daily_sales|floatformat:2 }}</h2>
+                <h2 class="fw-bold mb-0">₦{{ avg_daily_sales|floatformat:2 }}</h2>
             </div>
         </div>
     </div>
@@ -102,7 +102,7 @@
         data: {
             labels: JSON.parse('{{ daily_labels|escapejs }}'),
             datasets: [{
-                label: 'Revenue ($)',
+                label: 'Revenue (₦)',
                 data: JSON.parse('{{ daily_revenue|escapejs }}'),
                 borderColor: successColor,
                 backgroundColor: successLight,

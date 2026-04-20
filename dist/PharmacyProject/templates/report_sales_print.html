@@ -20,7 +20,7 @@
             <td>{{ sale.medicine.name }}</td>
             <td>{{ sale.quantity }}</td>
             <td>{{ sale.sold_by.username }}</td>
-            <td class="text-end">${{ sale.total_price }}</td>
+            <td class="text-end">₦{{ sale.total_price }}</td>
         </tr>
         {% empty %}
         <tr>
@@ -31,7 +31,7 @@
     <tfoot>
         <tr class="table-light fw-bold">
             <td colspan="5" class="text-end">Total Revenue</td>
-            <td class="text-end">${{ total_revenue|floatformat:2 }}</td>
+            <td class="text-end">₦{{ total_revenue|floatformat:2 }}</td>
         </tr>
     </tfoot>
 </table>

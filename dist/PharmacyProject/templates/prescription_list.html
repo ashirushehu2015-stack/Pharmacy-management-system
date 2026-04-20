@@ -59,8 +59,7 @@
 
                         {% if status_filter == 'filled' %}
                         <td>
-                            <div><small><i class="fa-solid fa-user me-1 text-muted"></i>{{
-                                    p.filled_by.username|default:"Unknown" }}</small></div>
+                            <div><small><i class="fa-solid fa-user me-1 text-muted"></i>{{ p.filled_by.username|default:"Unknown" }}</small></div>
                             <small class="text-muted">{{ p.filled_date|date:"h:i A, M d" }}</small>
                         </td>
                         <td class="text-end pe-4">

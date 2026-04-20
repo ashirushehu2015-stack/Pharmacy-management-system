@@ -58,7 +58,13 @@
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <small class="text-muted d-block text-uppercase fw-semibold mb-2"><i class="fa-solid fa-user-doctor me-2"></i>Prescribed By</small>
-                        <p class="fw-medium fs-6 text-dark bg-white border border-dashed p-2 rounded">{{ prescription.prescriber|default:"Not Specified" }}</p>
+                        <p class="fw-medium fs-6 text-dark bg-white border border-dashed p-2 rounded">
+                            {% if prescription.filled %}
+                                {{ prescription.filled_by.username|title }} (Dispenser)
+                            {% else %}
+                                {{ prescription.prescriber|default:"Not Specified" }}
+                            {% endif %}
+                        </p>
                     </div>
                     <div class="col-md-6">
                         <small class="text-muted d-block text-uppercase fw-semibold mb-2"><i class="fa-solid fa-receipt me-2"></i>Order Cost Estimate</small>
