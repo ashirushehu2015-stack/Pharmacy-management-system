@@ -411,7 +411,7 @@ def supplier_delete(request, pk):
 
 # --- Stock Entry Views ---
 
-@user_passes_test(is_admin_or_assistant)
+@user_passes_test(lambda u: u.is_authenticated and (u.is_admin() or u.is_assistant() or u.is_pharmacist()))
 def stock_entry_create(request):
     if request.method == 'POST':
         form = StockEntryForm(request.POST)

@@ -17,26 +17,54 @@
                 <form method="post">
                     {% csrf_token %}
 
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger shadow-sm mb-4">
+                        {% for error in form.non_field_errors %}
+                        <p class="mb-0 small"><i class="fa-solid fa-triangle-exclamation me-2"></i>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
                     <div class="row g-4">
                         <div class="col-12">
                             <label class="form-label text-muted fw-semibold">Patient Full Name <span
                                     class="text-danger">*</span></label>
                             {{ form.patient_name }}
+                            {% if form.patient_name.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.patient_name.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="col-md-8">
                             <label class="form-label text-muted fw-semibold">Prescribed Medicine <span
                                     class="text-danger">*</span></label>
                             {{ form.medicine }}
+                            {% if form.medicine.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.medicine.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted fw-semibold">Quantity <span
                                     class="text-danger">*</span></label>
                             {{ form.quantity }}
+                            {% if form.quantity.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.quantity.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="col-12">
                             <label class="form-label text-muted fw-semibold">Dosage Instructions <span
                                     class="text-danger">*</span></label>
                             {{ form.dosage }}
+                            {% if form.dosage.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.dosage.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
 

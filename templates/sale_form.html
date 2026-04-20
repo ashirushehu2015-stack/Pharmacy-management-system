@@ -22,11 +22,17 @@
                             <label class="form-label text-muted fw-semibold">Medicine <span
                                     class="text-danger">*</span></label>
                             {{ form.medicine }}
+                            {% if form.medicine.errors %}
+                            <div class="text-danger small mt-1">{% for error in form.medicine.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
                         </div>
                         <div class="col-12">
                             <label class="form-label text-muted fw-semibold">Quantity <span
                                     class="text-danger">*</span></label>
                             {{ form.quantity }}
+                            {% if form.quantity.errors %}
+                            <div class="text-danger small mt-1">{% for error in form.quantity.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
                         </div>
                     </div>
 
