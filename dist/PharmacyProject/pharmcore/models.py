@@ -41,7 +41,14 @@ class Medicine(models.Model):
 
 class Prescription(models.Model):
     patient_name = models.CharField(max_length=150)
-    prescriber = models.CharField(max_length=150, blank=True, help_text="Doctor who issued the prescription")
+    prescriber = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='prescribed_prescriptions',
+        help_text="Staff member who recorded/issued the prescription"
+    )
     date_prescribed = models.DateTimeField(auto_now_add=True)
     
     filled = models.BooleanField(default=False)

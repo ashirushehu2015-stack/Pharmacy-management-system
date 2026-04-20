@@ -101,6 +101,14 @@ DATABASES = {
     )
 }
 
+# Reliability Check: Enforce persistent database in production
+if not DEBUG and not os.getenv('DATABASE_URL'):
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured(
+        "DATABASE_URL must be set in production (DEBUG=False) to ensure data persistence. "
+        "Defaulting to SQLite on Render will cause data loss on server restarts."
+    )
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

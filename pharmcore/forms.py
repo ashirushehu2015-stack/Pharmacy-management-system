@@ -32,8 +32,17 @@ class PrescriptionForm(forms.ModelForm):
         fields = ['patient_name', 'prescriber']
         widgets = {
             'patient_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'prescriber': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Dr. Name'}),
+            'prescriber': forms.Select(attrs={'class': 'form-select'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter prescriber choices to staff roles only
+        from .models import User
+        staff_roles = [User.Role.ADMIN, User.Role.PHARMACIST, User.Role.ASSISTANT]
+        self.fields['prescriber'].queryset = User.objects.filter(role__in=staff_roles)
+        # Label choices for better readability
+        self.fields['prescriber'].label_from_instance = lambda obj: f"{obj.get_full_name() or obj.username} ({obj.get_role_display()})"
 
 class PrescriptionItemForm(forms.ModelForm):
     class Meta:

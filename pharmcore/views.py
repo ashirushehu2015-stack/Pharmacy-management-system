@@ -128,21 +128,25 @@ def prescription_list(request):
 @user_passes_test(lambda u: u.is_authenticated and (u.is_admin() or u.is_pharmacist() or u.is_assistant()))
 def prescription_create(request):
     from .forms import PrescriptionItemFormSet
+    from django.db import transaction
+
     if request.method == 'POST':
         form = PrescriptionForm(request.POST)
-        # Create formset early so it's always in context
         formset = PrescriptionItemFormSet(request.POST)
-        if form.is_valid():
-            prescription = form.save()
-            # Link formset to the newly created prescription
-            formset.instance = prescription
-            if formset.is_valid():
+        
+        if form.is_valid() and formset.is_valid():
+            with transaction.atomic():
+                prescription = form.save()
+                formset.instance = prescription
                 formset.save()
+                
                 messages.success(request, 'Prescription added successfully.')
                 return redirect('prescription_list')
     else:
-        form = PrescriptionForm()
+        # Default prescriber to current user
+        form = PrescriptionForm(initial={'prescriber': request.user})
         formset = PrescriptionItemFormSet()
+        
     return render(request, 'prescription_form.html', {'form': form, 'formset': formset})
 
 @user_passes_test(lambda u: u.is_authenticated and (u.is_admin() or u.is_pharmacist()))
