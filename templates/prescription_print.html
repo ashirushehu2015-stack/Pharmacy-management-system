@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription #{{ prescription.id }} - {{ prescription.patient_name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            .no-print { display: none; }
+            body { padding: 0; }
+            .container { width: 100%; max-width: none; }
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .prescription-card {
+            background: white;
+            padding: 40px;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #dee2e6;
+            margin-top: 20px;
+        }
+        .header {
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .meta-info {
+            background-color: #f1f3f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .dosage-box {
+            border-left: 5px solid #0d6efd;
+            padding: 20px;
+            background-color: #f8f9fa;
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin: 20px 0;
+        }
+        .signature-line {
+            margin-top: 60px;
+            border-top: 1px solid #333;
+            width: 250px;
+            text-align: center;
+            padding-top: 5px;
+        }
+    </style>
+</head>
+<body onload="window.print()">
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-8">
+            <div class="no-print mb-3">
+                <button onclick="window.history.back()" class="btn btn-secondary">Back</button>
+                <button onclick="window.print()" class="btn btn-primary">Print Again</button>
+            </div>
+            
+            <div class="prescription-card shadow-sm">
+                <div class="header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="text-primary fw-bold mb-0">PRESCRIPTION</h1>
+                        <p class="text-muted mb-0">Next-Gen Pharmacy Concept</p>
+                    </div>
+                    <div class="text-end">
+                        <h5 class="mb-0">ID: #{{ prescription.id }}</h5>
+                        <p class="text-muted small mb-0">{{ prescription.date_prescribed|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+
+                <div class="meta-info">
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-uppercase text-muted fw-bold d-block">Patient Name</small>
+                            <span class="fs-5 fw-semibold">{{ prescription.patient_name }}</span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-uppercase text-muted fw-bold d-block">Prescribed By</small>
+                            <span class="fs-5 fw-semibold">{{ prescription.prescriber|default:"Internal Physician" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="medicine-item mb-4">
+                    <small class="text-uppercase text-muted fw-bold d-block mb-1">Medication & Quantity</small>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">{{ prescription.medicine.name }}</h3>
+                        <span class="badge bg-dark fs-5">Qty: {{ prescription.quantity }}</span>
+                    </div>
+                    <p class="text-muted">{{ prescription.medicine.brand }} - {{ prescription.medicine.category }}</p>
+                </div>
+
+                <div class="dosage-info mb-5">
+                    <small class="text-uppercase text-muted fw-bold d-block mb-1">Instruction / Dosage</small>
+                    <div class="dosage-box">
+                        {{ prescription.dosage }}
+                    </div>
+                </div>
+
+                <div class="footer mt-5 pt-5 border-top d-flex justify-content-between">
+                    <div>
+                        <small class="d-block text-muted">Status: {% if prescription.filled %}FILLED{% else %}PENDING{% endif %}</small>
+                        {% if prescription.filled %}
+                        <small class="d-block text-muted">Dispensed By: {{ prescription.filled_by.username }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="text-end">
+                        <div class="signature-line mx-auto ms-auto">
+                            Authorized Signature
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

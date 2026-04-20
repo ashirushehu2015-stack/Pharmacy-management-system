@@ -16,6 +16,7 @@ urlpatterns = [
     path('prescriptions/', views.prescription_list, name='prescription_list'),
     path('prescriptions/new/', views.prescription_create, name='prescription_create'),
     path('prescriptions/<int:pk>/', views.prescription_detail, name='prescription_detail'),
+    path('prescriptions/<int:pk>/print/', views.prescription_print, name='prescription_print'),
     path('prescriptions/<int:pk>/fill/', views.prescription_fill, name='prescription_fill'),
     
     path('sales/new/', views.sale_create, name='sale_create'),

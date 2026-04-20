@@ -19,7 +19,7 @@
             <td>{{ medicine.name }}</td>
             <td>{{ medicine.brand }}</td>
             <td>{{ medicine.category }}</td>
-            <td>${{ medicine.price }}</td>
+            <td>₦{{ medicine.price }}</td>
             <td {% if medicine.is_low_stock %}class="text-danger fw-bold" {% endif %}>
                 {{ medicine.stock_quantity }}
             </td>

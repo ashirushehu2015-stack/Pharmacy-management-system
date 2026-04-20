@@ -29,9 +29,10 @@ class MedicineForm(forms.ModelForm):
 class PrescriptionForm(forms.ModelForm):
     class Meta:
         model = Prescription
-        fields = ['patient_name', 'medicine', 'quantity', 'dosage']
+        fields = ['patient_name', 'prescriber', 'medicine', 'quantity', 'dosage']
         widgets = {
             'patient_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'prescriber': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Dr. Name'}),
             'medicine': forms.Select(attrs={'class': 'form-select'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
             'dosage': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 1 tablet twice daily'}),
